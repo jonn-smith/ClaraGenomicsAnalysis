@@ -313,6 +313,7 @@ bool CudapoaBatch::reserve_buf(int32_t max_seq_length)
 
     if (scores_size > avail_scorebuf_mem_)
     {
+        ::std::cout << "WARNING: attempted to reserve more memory than available: " << scores_size " < " << avail_scorebuf_mem_ << ::std::endl;
         return false;
     }
     else
@@ -338,6 +339,7 @@ StatusType CudapoaBatch::add_poa_group(std::vector<StatusType>& per_seq_status,
 
     if (!reserve_buf(max_seq_length))
     {
+        ::std::cout << "WARNING: Batch size exceeded: " << max_seq_length << ::std::endl;
         return StatusType::exceeded_batch_size;
     }
 

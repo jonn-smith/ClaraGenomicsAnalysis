@@ -19,6 +19,7 @@
 #include <cuda_runtime_api.h>
 #include <vector>
 #include <string>
+#include <sstream>
 #include <stdexcept>
 #include <unistd.h>
 
@@ -40,7 +41,7 @@ std::unique_ptr<Batch> initialize_batch(bool msa)
     Init();
 
     // Initialize CUDAPOA batch object for batched processing of POAs on the GPU.
-    const int32_t max_sequences_per_poa_group = 100;
+    const int32_t max_sequences_per_poa_group = 1024;
     const int32_t device_id                   = 0;
     cudaStream_t stream                       = 0;
     size_t mem_per_batch                      = 0.9 * free; // Using 90% of GPU available memory for CUDAPOA batch.
@@ -133,7 +134,13 @@ int main(int argc, char** argv)
     bool help  = false;
     bool print = false;
 
-    while ((c = getopt(argc, argv, "mhp")) != -1)
+    const std::string default_input_data = std::string(CUDAPOA_BENCHMARK_DATA_DIR) + "/sample-windows.txt";
+    std::string input_data = default_input_data;
+   
+    const size_t default_num_windows = 1000;
+    size_t num_windows = default_num_windows;
+
+    while ((c = getopt(argc, argv, "w:f:mhp")) != -1)
     {
         switch (c)
         {
@@ -146,6 +153,23 @@ int main(int argc, char** argv)
         case 'h':
             help = true;
             break;
+        case 'f':
+            input_data = std::string(optarg);
+            break;
+        case 'w':
+            { 
+                ::std::stringstream ss(optarg);
+                ss >> num_windows;
+            }
+            break;
+        case '?':
+            switch (optopt)
+            {
+                case 'f':
+                case 'w':
+                    ::std::cerr << "Error: Option " << optopt << " requires a file path as the argument" << ::std::endl;
+                    ::std::exit(1);
+            }
         }
     }
 
@@ -156,16 +180,21 @@ int main(int argc, char** argv)
         std::cout << "./sample_cudapoa [-m] [-h]" << std::endl;
         std::cout << "-m : Generate MSA (if not provided, generates consensus by default)" << std::endl;
         std::cout << "-p : Print the MSA or consensus output to stdout" << std::endl;
+        std::cout << "-w NUMWINDOWS : Use the given NUMWINDOWS as the number of windows" << std::endl;
+        std::cout << "                Defaults to: " << default_num_windows << std::endl;
+        std::cout << "-f FILENAME : Use the given FILENAME as the input file" << std::endl;
+        std::cout << "              Defaults to: " << default_input_data << std::endl;
         std::cout << "-h : Print help message" << std::endl;
         std::exit(0);
     }
 
+    ::std::cout << "Using file: " << input_data << ::std::endl;
+
     // Load input data. Each POA group is represented as a vector of strings. The sample
     // data has many such POA groups to process, hence the data is loaded into a vector
     // of vector of strings.
-    const std::string input_data = std::string(CUDAPOA_BENCHMARK_DATA_DIR) + "/sample-windows.txt";
     std::vector<std::vector<std::string>> windows;
-    parse_window_data_file(windows, input_data, 1000); // Generate windows.
+    parse_window_data_file(windows, input_data, num_windows); // Generate windows.
     assert(get_size(windows) > 0);
 
     // Initialize batch.
@@ -175,6 +204,7 @@ int main(int argc, char** argv)
     int32_t window_count = 0;
     for (int32_t i = 0; i < get_size(windows);)
     {
+        ::std::cout << "Processing window: " << i << ::std::endl;
         const std::vector<std::string>& window = windows[i];
 
         Group poa_group;
@@ -213,7 +243,7 @@ int main(int argc, char** argv)
             // After MSA is generated for batch, reset batch to make roomf or next set of POA groups.
             batch->reset();
 
-            std::cout << "Processed windows " << window_count << " - " << i << std::endl;
+            std::cout << "Processed windows " << window_count << " - " << i << std::endl << std::endl;
             window_count = i;
         }
 

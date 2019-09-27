@@ -21,20 +21,20 @@
 #include <vector>
 
 // Maximum vnumber of edges per node.
-#define CUDAPOA_MAX_NODE_EDGES 50
+#define CUDAPOA_MAX_NODE_EDGES 1600
 
 // Maximum number of nodes aligned to each other.
-#define CUDAPOA_MAX_NODE_ALIGNMENTS 50
+#define CUDAPOA_MAX_NODE_ALIGNMENTS 1600
 
 // Maximum number of nodes in a graph, 1 graph per window.
-#define CUDAPOA_MAX_NODES_PER_WINDOW 3072
-#define CUDAPOA_MAX_NODES_PER_WINDOW_BANDED 4096
+#define CUDAPOA_MAX_NODES_PER_WINDOW 131072
+#define CUDAPOA_MAX_NODES_PER_WINDOW_BANDED 262144
 
 // Maximum number of elements in a sequence.
-#define CUDAPOA_MAX_SEQUENCE_SIZE 1024
+#define CUDAPOA_MAX_SEQUENCE_SIZE 32768
 
 // Maximum size of final consensus
-#define CUDAPOA_MAX_CONSENSUS_SIZE 1024
+#define CUDAPOA_MAX_CONSENSUS_SIZE 32768
 
 // Maximum vertical dimension of scoring matrix, which stores graph.
 // Adding 4 elements more to ensure a 4byte boundary alignment for
