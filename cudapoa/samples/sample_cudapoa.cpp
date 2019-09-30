@@ -75,14 +75,14 @@ void process_batch(Batch* batch, bool msa, bool print)
         status = batch->get_msa(msa, output_status);
         if (status != StatusType::success)
         {
-            std::cerr << "Could not generate MSA for batch : " << status << std::endl;
+            std::cerr << "Could not generate MSA for batch: " << getStatusTypeString(status) << " (" << status << ")" << std::endl;
         }
 
         for (int32_t g = 0; g < get_size(msa); g++)
         {
             if (output_status[g] != StatusType::success)
             {
-                std::cerr << "Error generating  MSA for POA group " << g << ". Error type " << output_status[g] << std::endl;
+                std::cerr << "Error generating MSA for POA group " << g << ". Error type: " << getStatusTypeString(output_status[g]) << "(" << output_status[g] << ")" << std::endl;
             }
             else
             {
@@ -106,14 +106,14 @@ void process_batch(Batch* batch, bool msa, bool print)
         status = batch->get_consensus(consensus, coverage, output_status);
         if (status != StatusType::success)
         {
-            std::cerr << "Could not generate consensus for batch : " << status << std::endl;
+            std::cerr << "Could not generate consensus for batch: " << getStatusTypeString(status) << " (" << status << ")" << std::endl;
         }
 
         for (int32_t g = 0; g < get_size(consensus); g++)
         {
             if (output_status[g] != StatusType::success)
             {
-                std::cerr << "Error generating consensus for POA group " << g << ". Error type " << output_status[g] << std::endl;
+                std::cerr << "Error generating consensus for POA group " << g << ". Error type: " << getStatusTypeString(output_status[g]) << "(" << output_status[g] << ")" << std::endl;
             }
             else
             {

@@ -10,6 +10,8 @@
 
 #pragma once
 
+#include <string>
+
 namespace claragenomics
 {
 namespace cudapoa
@@ -33,6 +35,9 @@ enum StatusType
     output_type_unavailable,
     generic_error
 };
+
+/// CUDA POA Error Type String Lookup Table
+::std::string getStatusTypeString(const StatusType& t); 
 
 /// Initialize CUDA POA context.
 StatusType Init();
